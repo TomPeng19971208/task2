@@ -1,0 +1,18 @@
+/* This file is for your main application css. */
+
+@import "./phoenix.css";
+
+#index_info {
+  font-size: 40px;
+  color: grey;
+}
+
+.col{
+  margin: 10px;
+}
+
+#finish_box {
+  width: 20px;
+  height: 20px;
+  margin-left: 10px;
+}
