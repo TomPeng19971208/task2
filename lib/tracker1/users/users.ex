@@ -19,7 +19,12 @@ defmodule Tracker1.Users do
   """
   def list_users do
     Repo.all(User)
-    |> Repo.preload([:tasks])
+    |> Repo.preload([:tasks, :managers, :underlings])
+  end
+
+  def list_underlings(id) do
+    user = get_user(id)
+    user.underlings
   end
 
   @doc """
@@ -41,12 +46,13 @@ defmodule Tracker1.Users do
   end
 
   def get_user(id) do
-    Repo.get(User, id)
-    |> Repo.preload([:tasks])
+    Repo.one from p in User,
+      where: p.id == ^id,
+      preload: [:tasks, :managers, :underlings]
   end
 
   def get_user_by_name(name) do
-    Repo.get_by(User, name: name);
+    Repo.get_by(User, name: name)
   end
   @doc """
   Creates a user.
@@ -61,9 +67,19 @@ defmodule Tracker1.Users do
 
   """
   def create_user(attrs \\ %{}) do
+    managers_id = Enum.map(attrs["managers"], fn x -> String.to_integer(x) end)
+    underlings_id = Enum.map(attrs["underlings"], fn x -> String.to_integer(x) end)
+    users = list_users()
+    managers = Enum.filter(users, fn u -> u.id in managers_id end)
+    underlings = Enum.filter(users, fn u -> u.id in underlings_id end)
     %User{}
     |> User.changeset(attrs)
-    |> Repo.insert()
+    |> Repo.insert!
+    |> Repo.preload([:managers, :underlings])
+    |> Ecto.Changeset.change
+    |> Ecto.Changeset.put_assoc(:managers, managers)
+    |> Ecto.Changeset.put_assoc(:underlings, underlings)
+    |> Repo.update
   end
 
   @doc """
@@ -79,9 +95,19 @@ defmodule Tracker1.Users do
 
   """
   def update_user(%User{} = user, attrs) do
+    managers_id = Enum.map(attrs["managers"], fn x -> String.to_integer(x) end)
+    underlings_id = Enum.map(attrs["underlings"], fn x -> String.to_integer(x) end)
+    users = list_users()
+    managers = Enum.filter(users, fn u -> u.id in managers_id end)
+    underlings = Enum.filter(users, fn u -> u.id in underlings_id end)
     user
     |> User.changeset(attrs)
-    |> Repo.update()
+    |> Repo.update!
+    |> Repo.preload([:managers, :underlings])
+    |> Ecto.Changeset.change
+    |> Ecto.Changeset.put_assoc(:managers, managers)
+    |> Ecto.Changeset.put_assoc(:underlings, underlings)
+    |> Repo.update
   end
 
   @doc """
@@ -110,6 +136,6 @@ defmodule Tracker1.Users do
 
   """
   def change_user(%User{} = user) do
-    User.changeset(user, %{})
+    User.changeset(user, %{managers: [], underlings: []})
   end
 end

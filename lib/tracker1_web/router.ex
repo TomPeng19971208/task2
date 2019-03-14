@@ -10,6 +10,13 @@ defmodule Tracker1Web.Router do
     plug Tracker1Web.Plugs.FetchSession
   end
 
+  pipeline :ajax do
+    plug :accepts, ["json"]
+    plug :fetch_session
+    plug :fetch_flash
+    plug Tracker1Web.Plugs.FetchSession
+  end
+
   pipeline :api do
     plug :accepts, ["json"]
   end
@@ -22,6 +29,12 @@ defmodule Tracker1Web.Router do
     resources "/users", UserController
     resources "/tasks", TaskController
   end
+
+  scope "/ajax", Tracker1Web do
+    pipe_through :ajax
+    resources "/timeblocks", TimeblockController, except: [:new, :edit]
+  end
+
 
   # Other scopes may use custom stacks.
   # scope "/api", TrackerWeb do

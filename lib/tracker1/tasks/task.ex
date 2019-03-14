@@ -9,6 +9,7 @@ defmodule Tracker1.Tasks.Task do
     field :time, :integer
     field :title, :string
     belongs_to :user, Tracker1.Users.User
+    has_many :timeblocks, Tracker1.Timeblocks.Timeblock
     timestamps()
   end
 

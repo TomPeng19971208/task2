@@ -5,11 +5,18 @@ defmodule Tracker1Web.TaskController do
   alias Tracker1.Tasks.Task
   alias Tracker1.Users
   alias Tracker1.Repo
+  alias Tracker1.Timeblocks
 
 
   def index(conn, _params) do
-    tasks = Tasks.list_tasks()
-    render(conn, "index.html", tasks: tasks)
+    tasks = Tasks.list_visible_task(conn.assigns.current_user.id)
+    times = Enum.reduce(tasks, %{}, fn t, acc -> Map.put(acc, t.id, calc_time(t.id)) end)
+    render(assign(conn, :times, times), "index.html", tasks: tasks)
+  end
+
+  defp calc_time(task_id) do
+    blocks = Timeblocks.get_time_timeblock_by_taskid(task_id)
+    time = round(Enum.sum(Enum.map(blocks, fn t -> DateTime.diff(t.end, t.start) end))/60)
   end
 
   def new(conn, _params) do
@@ -26,20 +33,22 @@ defmodule Tracker1Web.TaskController do
         |> redirect(to: Routes.task_path(conn, :show, task))
       {:error, %Ecto.Changeset{} = changeset} ->
         IO.puts("error")
-        users = Users.list_users()
+        users = Users.list_underlings(conn.assigns.current_user.id)
         render(conn, "new.html", changeset: changeset, users: users)
     end
   end
 
   def show(conn, %{"id" => id}) do
     task = Tasks.get_task!(id)
-    render(conn, "show.html", task: task)
+    blocks = Timeblocks.get_time_timeblock_by_taskid(id)
+    IO.inspect(blocks)
+    render(conn, "show.html", task: task, timeblocks: blocks)
   end
 
   def edit(conn, %{"id" => id}) do
     task = Tasks.get_task!(id)
     changeset = Tasks.change_task(task)
-    users = Users.list_users()
+    users = Users.list_underlings(conn.assigns.current_user.id) ++ [conn.assigns.current_user]
     render(conn, "edit.html", task: task, changeset: changeset, users: users)
   end
 

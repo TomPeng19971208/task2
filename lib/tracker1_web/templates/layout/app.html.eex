@@ -16,9 +16,12 @@
     <div class="container">
       <div class="col-4">
       <%= if @current_user do %>
-      <p class="my-3">
+      <p class="my-3 ">
         User: <%= @current_user.name %>
         <%= link("Logout", to: Routes.session_path(@conn, :delete), method: :delete) %>
+      </p>
+      <p>
+        <%= link "User Profile", to: Routes.user_path(@conn, :show, @current_user) %>
       </p>
      <% else %>
      <%= form_for @conn, Routes.session_path(@conn, :create), [class: "form-inline"], fn f -> %>

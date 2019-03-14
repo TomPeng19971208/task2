@@ -5,6 +5,7 @@ defmodule Tracker1.Tasks do
 
   import Ecto.Query, warn: false
   alias Tracker1.Repo
+  alias Tracker1.Users
 
   alias Tracker1.Tasks.Task
 
@@ -36,9 +37,19 @@ defmodule Tracker1.Tasks do
       ** (Ecto.NoResultsError)
 
   """
+
+  def list_visible_task(id) do
+    user = Users.get_user(id)
+    all_user = Enum.map(user.underlings, fn x -> x.id end) ++ [user.id]
+    tasks = list_tasks()
+    Enum.filter(tasks, fn t -> t.user_id in all_user end)
+  end
+
+
   def get_task!(id) do
     Repo.get!(Task, id)
     |> Repo.preload([:user])
+    |> Repo.preload([:timeblocks])
   end
 
   @doc """

@@ -4,11 +4,27 @@
       <p>Oops, something went wrong! Please check the errors below.</p>
     </div>
   <% end %>
-<div>
+<div class="form-group">
   <%= label f, :name %>
   <%= text_input f, :name %>
   <%= error_tag f, :name %>
 </div>
+
+<div class="form-group">
+  <%= label f, :managers %>
+</br>
+  <%= multiple_select f, :managers, Enum.map(@users, fn u -> {u.name, u.id} end) %>
+  <%= error_tag f, :managers %>
+</div>
+
+<div class="form-group">
+  <%= label f, :underlings %>
+</br>
+  <%= multiple_select f, :underlings, Enum.map(@users, fn u -> {u.name, u.id} end) %>
+  <%= error_tag f, :underlings %>
+</div>
+
+
   </br>
-    <span class="d-flex justify-content-center"><%= submit "Add User" %></span>
+    <span class="d-flex justify-content-center"><%= submit "submit" %></span>
 <% end %>

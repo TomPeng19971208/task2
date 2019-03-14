@@ -7,6 +7,14 @@
   color: grey;
 }
 
+.hidden-form {
+  display: none;
+}
+
+.add-timeblock-form {
+  display: inline-block;
+}
+
 .col{
   margin: 10px;
 }

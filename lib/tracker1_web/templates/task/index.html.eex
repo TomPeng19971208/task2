@@ -1,4 +1,4 @@
-<h2>All Tasks</h2>
+<h2>Task Report</h2>
 <div id="main" class="row">
 <div class="col">
 <table class="table">
@@ -18,7 +18,7 @@
     <tr>
       <td><%= task.title %></td>
       <td><%= task.description %></td>
-      <td><%= task.time %></td>
+      <td><%= @conn.assigns.times[task.id] %></td>
       <td><%= task.finished %></td>
       <td><%= task.user.name %></td>
 
@@ -33,6 +33,7 @@
 </table>
 <div>
 
+<h2>My Working Area</h2>
 <!-- start of rwo 2 -->
 <div class="row justify-content-around">
   <!-- table for ongoing tasks-->
@@ -53,7 +54,7 @@
         <tr>
           <td><%= task.title %></td>
           <td><%= task.description %></td>
-          <td><%= task.time %></td>
+          <td><%= @conn.assigns.times[task.id] %></td>
           <td><span><%= link "Detail", to: Routes.task_path(@conn, :show, task), class: "btn btn-default btn-xs" %></span></td>
           <td><span><%= link "Finish", to: Routes.task_path(@conn, :edit, task), class: "btn btn-default btn-xs" %></span></td>
        </tr>

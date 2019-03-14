@@ -1,3 +1,7 @@
+<script>
+ window.timeblock_path = "<%= Routes.timeblock_path(@conn, :create) %>";
+ window.task_path = "<%= Routes.task_path(@conn, :show, @task) %>";
+</script>
 <h2>Task Detail</h2>
 
 <ul>
@@ -13,8 +17,8 @@
   </li>
 
   <li>
-    <strong>Time:</strong>
-    <%= @task.time %>
+    <strong>Time (min):</strong>
+    <span id="time"><%= abs(round(Enum.sum(Enum.map(@timeblocks, fn t -> DateTime.diff(t.end, t.start) end))/60)) %></span>
   </li>
 
   <li>
@@ -27,6 +31,58 @@
     <%= @task.user.name %>
   </li>
 
+<div>
+  <table id="timeblock-table">
+      <thead>
+        <tr>
+          <th>start</th>
+          <th>end</th>
+          <th>operation</th>
+        </tr>
+      </thead>
+      <tbody>
+        <%= for timeblock <- @timeblocks do %>
+          <tr>
+            <td><%= timeblock.start %></td>
+            <td><%= timeblock.end %></td>
+            <td>
+              <button data-task-id="<%= @task.id %>" data-timeblock-id="<%= timeblock.id %>"
+              class="btn btn-info edit-timeblock-button">Edit/Cancel</button>
+              <button class="timeblock-delete-button btn btn-danger" data-timeblock-id="<%= timeblock.id %>"
+              class="btn btn-danger delete-timeblock-button">Delete</button>
+            </td>
+          </tr>
+          <div id="edit-timeblock-form<%= timeblock.id%>" class="hidden-form">
+            start: <input type="datetime-local" id="start"> </br>
+            end  : <input type="datetime-local" id="end">  </br>
+            <button data-task-id="<%= @task.id %>" data-timeblock-id="<%= timeblock.id %>"
+              class="btn btn-info timeblock-edit-submit-button">
+              submit
+            </button>
+          </div>
+        <% end %>
+      </tbody>
+    </table>
+</div>
+
+    <%= if @task.user.name == @current_user.name do %>
+        <h3>start working</h3>
+      </br>
+      <form id="add-timeblock-form" class="hidden-form">
+        <h3>add a new timblock</h3>
+        start: <input type="datetime-local" id="startTime"> </br>
+        end  : <input type="datetime-local" id="endTime"> </br>
+        <button data-task-id="<%= @task.id %>" class="btn btn-info timeblock-add-submit-button">
+          submit
+        </button>
+      </form>
+        <button id="start-working-button" data-task-id="<%= @task.id %>"
+                  class="btn btn-info">start working</button>
+        <button id="stop-working-button" data-task-id="<%= @task.id %>"
+                  class="btn btn-info" >stop working</button>
+        <button id="add-time-block-button" data-task-id="<%= @task.id %>"
+                  class="btn btn-info" >add new/cancel</button>
+    <% end %>
 </ul>
 
 <span><%= link "Edit", to: Routes.task_path(@conn, :edit, @task) %></span>
